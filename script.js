@@ -481,7 +481,7 @@ function renderLocalDeliverySection(customersArray) {
     // Navigate button
     const navigateBtn = document.createElement("button");
     navigateBtn.className = "navigate-btn";
-    navigateBtn.textContent = "Navigate";
+    navigateBtn.textContent = "📍";
     navigateBtn.onclick = function(event) {
       event.stopPropagation();
       openGoogleMaps(customer.latitude, customer.longitude);
