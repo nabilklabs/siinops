@@ -1,56 +1,99 @@
-document.getElementById("csvUpload").addEventListener("change", function (event) {
-  const file = event.target.files[0];
-  if (!file) return;
+// Global variables to track data
+let jsonData = [];
+let csvData = "";  // Will store the JSON converted to CSV format for compatibility
 
-  const reader = new FileReader();
-
-  reader.onload = function (e) {
-    const text = e.target.result;
-    processCSV(text);
-  };
-
-  reader.readAsText(file);
+// Load data as soon as the page loads
+document.addEventListener("DOMContentLoaded", function() {
+  loadOrderData();
+  
+  // Set up the section toggle functionality
+  document.querySelectorAll(".section h3").forEach(header => {
+    header.addEventListener("click", function() {
+      toggleSection(this);
+    });
+  });
+  
+  // Hide the upload container since we're loading directly from JSON
+  const uploadContainer = document.querySelector(".upload-container");
+  if (uploadContainer) {
+    uploadContainer.style.display = "none";
+  }
 });
 
-function processCSV(csvText) {
-  // Store the CSV data globally for later use
-  window.csvData = csvText;
-  
-  const rows = csvText.split("\n").map(row => row.trim()).filter(Boolean);
-  const headers = rows[0].split(",");
+// Function to load order data from orders.json
+async function loadOrderData() {
+  try {
+    const response = await fetch('orders.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    jsonData = await response.json();
+    console.log("Order data loaded successfully:", jsonData.length, "orders");
+    
+    // Calculate and display date range
+    const dateRange = getDateRange(jsonData);
+    if (dateRange.earliest && dateRange.latest) {
+      document.getElementById('dates').textContent = 
+        `${formatMonthDay(dateRange.earliest)} - ${formatMonthDay(dateRange.latest)}`;
+    }
+    
+    // Process the JSON data
+    processOrderData(jsonData);
+  } catch (error) {
+    console.error("Failed to load order data:", error);
+    alert("Error loading order data. Please try again later.");
+  }
+}
 
-  // Find required column indices
-  const statusIndex = headers.findIndex(h => h.trim().toLowerCase() === "shipping status");
-  const sellerCountryIndex = headers.findIndex(h => h.trim().toLowerCase() === "seller country");
-  const sellerIndex = headers.findIndex(h => h.trim().toLowerCase() === "seller");
-  const sellerNumberIndex = headers.findIndex(h => h.trim().toLowerCase() === "seller number");
-  const sellerLatIndex = headers.findIndex(h => h.trim().toLowerCase() === "seller latitude");
-  const sellerLongIndex = headers.findIndex(h => h.trim().toLowerCase() === "seller longitude");
-  const customerIndex = headers.findIndex(h => h.trim().toLowerCase() === "customer");
-  const customerCountryIndex = headers.findIndex(h => h.trim().toLowerCase() === "customer country");
-  const customerNumberIndex = headers.findIndex(h => h.trim().toLowerCase() === "customer number");
-  const customerLatIndex = headers.findIndex(h => h.trim().toLowerCase() === "customer latitude");
-  const customerLongIndex = headers.findIndex(h => h.trim().toLowerCase() === "customer longitude");
-  const orderIdIndex = headers.findIndex(h => h.trim().toLowerCase() === "order id");
-  const itemIndex = headers.findIndex(h => h.trim().toLowerCase() === "item");
-  const totalIndex = headers.findIndex(h => h.trim().toLowerCase() === "total");
-  const currencyIndex = headers.findIndex(h => h.trim().toLowerCase() === "currency code");
-  const paidIndex = headers.findIndex(h => h.trim().toLowerCase() === "paid");
+// Parse "DD/MM/YYYY, HH:mm" to a Date object
+function parseCustomDate(dateStr) {
+  const [datePart, timePart] = dateStr.split(', ');
+  const [day, month, year] = datePart.split('/');
+  const [hour, minute] = timePart.split(':');
 
-  // Check if all required columns exist
-  if (statusIndex === -1 || sellerCountryIndex === -1 || sellerIndex === -1 || 
-      sellerNumberIndex === -1 || sellerLatIndex === -1 || sellerLongIndex === -1 || 
-      customerIndex === -1 || customerCountryIndex === -1 || customerNumberIndex === -1 ||
-      customerLatIndex === -1 || customerLongIndex === -1 || orderIdIndex === -1 || 
-      itemIndex === -1 || totalIndex === -1 || currencyIndex === -1 || paidIndex === -1) {
-    alert("One or more required columns are missing from the CSV file.");
-    return;
+  return new Date(
+    Number(year),
+    Number(month) - 1, // Months are 0-indexed
+    Number(day),
+    Number(hour),
+    Number(minute)
+  );
+}
+
+// Format a Date object as "Month Day" (e.g., "May 4")
+function formatMonthDay(dateObj) {
+  const options = { month: 'short', day: 'numeric' };
+  return dateObj.toLocaleDateString('en-US', options);
+}
+
+// Find earliest and latest dates in the data
+function getDateRange(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    console.warn("Empty or invalid data passed to getDateRange()");
+    return { earliest: null, latest: null };
   }
 
+  let earliestDate = parseCustomDate(data[0].CreatedAt);
+  let latestDate = parseCustomDate(data[0].CreatedAt);
+
+  for (const item of data) {
+    const date = parseCustomDate(item.CreatedAt);
+    if (isNaN(date)) continue;
+
+    if (date < earliestDate) earliestDate = date;
+    if (date > latestDate) latestDate = date;
+  }
+
+  return { earliest: earliestDate, latest: latestDate };
+}
+
+// Process the order data
+function processOrderData(data) {
   // Store column indices globally for later use
   window.csvColumnIndices = {
-    status: statusIndex,
-    orderId: orderIdIndex
+    status: 'ShippingStatus',
+    orderId: 'OrderID'
   };
 
   // Process data for status counts - track unique sellers
@@ -65,22 +108,20 @@ function processCSV(csvText) {
   const customerNames = new Set(); // Track if seller is also a customer
 
   // First pass: collect all customer names
-  for (let i = 1; i < rows.length; i++) {
-    const cols = rows[i].split(",");
-    const customer = cols[customerIndex]?.trim();
+  for (const order of data) {
+    const customer = order.Customer?.trim();
     if (customer) {
       customerNames.add(customer);
     }
   }
 
-  // Process all rows
-  for (let i = 1; i < rows.length; i++) {
-    const cols = rows[i].split(",");
-    const sellerCountry = cols[sellerCountryIndex]?.trim();
-    const customerCountry = cols[customerCountryIndex]?.trim();
-    const status = cols[statusIndex]?.trim().toLowerCase();
-    const seller = cols[sellerIndex]?.trim();
-    const customer = cols[customerIndex]?.trim();
+  // Process all orders
+  for (const order of data) {
+    const sellerCountry = order.SellerCountry?.trim();
+    const customerCountry = order.CustomerCountry?.trim();
+    const status = order.ShippingStatus?.trim().toLowerCase();
+    const seller = order.Seller?.trim();
+    const customer = order.Customer?.trim();
     
     // Count unique sellers for status cards (BH sellers only)
     if (sellerCountry === "BH") {
@@ -91,13 +132,13 @@ function processCSV(csvText) {
     
     // Process for Local PickUp section (BH sellers with pending status)
     if (sellerCountry === "BH" && status === "pending") {
-      const sellerNumber = cols[sellerNumberIndex]?.trim();
-      const sellerLat = cols[sellerLatIndex]?.trim();
-      const sellerLong = cols[sellerLongIndex]?.trim();
-      const orderId = cols[orderIdIndex]?.trim();
-      const item = cols[itemIndex]?.trim();
-      const total = cols[totalIndex]?.trim();
-      const currency = cols[currencyIndex]?.trim();
+      const sellerNumber = order.SellerNumber?.toString().trim();
+      const sellerLat = order.SellerLatitude?.toString().trim();
+      const sellerLong = order.SellerLongitude?.toString().trim();
+      const orderId = order.OrderID?.toString().trim();
+      const item = order.Item?.trim();
+      const total = order.Total?.toString().trim();
+      const currency = order.CurrencyCode?.trim();
       const customerFlag = getCountryFlag(customerCountry);
       
       // Skip if missing data
@@ -131,8 +172,8 @@ function processCSV(csvText) {
         currency: currency
       });
       
-      // Store row index for updating status
-      sellers[seller].rowIndices.push(i);
+      // Store DbID for updating status
+      sellers[seller].rowIndices.push(order.DbID);
       
       // Count this order for the seller (only count unique order IDs)
       sellers[seller].orderIds.add(orderId);
@@ -140,20 +181,20 @@ function processCSV(csvText) {
     
     // Process for Local Delivery and Deliver to Siin sections (Picked Up status)
     if (status === "picked up") {
-      const customerNumber = cols[customerNumberIndex]?.trim();
-      const customerLat = cols[customerLatIndex]?.trim();
-      const customerLong = cols[customerLongIndex]?.trim();
-      const orderId = cols[orderIdIndex]?.trim();
-      const item = cols[itemIndex]?.trim();
-      const total = parseFloat(cols[totalIndex]?.trim() || 0);
-      const currency = cols[currencyIndex]?.trim();
-      const paid = cols[paidIndex]?.trim().toLowerCase() === "true";
+      const customerNumber = order.CustomerNumber?.toString().trim();
+      const customerLat = order.CustomerLatitude?.toString().trim();
+      const customerLong = order.CustomerLongitude?.toString().trim();
+      const orderId = order.OrderID?.toString().trim();
+      const item = order.Item?.trim();
+      const total = parseFloat(order.Total || 0);
+      const currency = order.CurrencyCode?.trim();
+      const paid = order.Paid === true;
       const sellerFlag = getCountryFlag(sellerCountry);
       
       // Skip if missing data
       if (!customer || !customerNumber || !customerLat || !customerLong || !orderId) continue;
       
-      // Determine if local or Siin delivery based on customer country
+      // FIXED: Determine if local or Siin delivery based on customer country
       const customerObj = customerCountry === "BH" ? localCustomers : siinCustomers;
       
       // Add or update customer in tracking object
@@ -188,8 +229,8 @@ function processCSV(csvText) {
         customerObj[customer].unpaidTotal += total;
       }
       
-      // Store row index for updating status
-      customerObj[customer].rowIndices.push(i);
+      // Store DbID for updating status
+      customerObj[customer].rowIndices.push(order.DbID);
       
       // Count this order for the customer
       customerObj[customer].orderIds.add(orderId);
@@ -322,7 +363,7 @@ function renderLocalPickupSection(sellersArray) {
     // Navigate button
     const navigateBtn = document.createElement("button");
     navigateBtn.className = "navigate-btn";
-    navigateBtn.textContent = "Navigate";
+    navigateBtn.textContent = "📍";
     navigateBtn.onclick = function(event) {
       event.stopPropagation();
       openGoogleMaps(seller.latitude, seller.longitude);
@@ -707,24 +748,22 @@ function updateScrollButtons() {
   });
 }
 
-function markAllAsPickedUp(rowIndices, sellerName) {
-  if (!window.csvData) {
-    alert("CSV data not available. Please upload the file again.");
-    return;
+// FIXED: Added the missing scrollToSection function
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
   }
-  
-  const rows = window.csvData.split("\n");
-  const statusIndex = window.csvColumnIndices.status;
-  
-  // Update the status in the CSV data for all rows from this seller
-  rowIndices.forEach(rowIndex => {
-    const rowData = rows[rowIndex].split(",");
-    rowData[statusIndex] = "Picked Up";
-    rows[rowIndex] = rowData.join(",");
+}
+
+function markAllAsPickedUp(dbIds, sellerName) {
+  // Update the status in the JSON data
+  dbIds.forEach(dbId => {
+    const orderIndex = jsonData.findIndex(order => order.DbID === dbId);
+    if (orderIndex !== -1) {
+      jsonData[orderIndex].ShippingStatus = "Picked Up";
+    }
   });
-  
-  // Update the global CSV data
-  window.csvData = rows.join("\n");
   
   // Find the button that triggered this and disable it
   const button = document.querySelector(`.mark-all-picked-btn[data-seller-name="${sellerName}"]`);
@@ -740,29 +779,20 @@ function markAllAsPickedUp(rowIndices, sellerName) {
     });
   }
   
-  // Recalculate stats and update UI
-  processCSV(window.csvData);
+  // Re-process data to update the UI
+  processOrderData(jsonData);
   
   alert(`All orders from ${sellerName} have been marked as Picked Up!`);
 }
-function markAllAsDelivered(rowIndices, customerName) {
-  if (!window.csvData) {
-    alert("CSV data not available. Please upload the file again.");
-    return;
-  }
-  
-  const rows = window.csvData.split("\n");
-  const statusIndex = window.csvColumnIndices.status;
-  
-  // Update the status in the CSV data for all rows for this customer
-  rowIndices.forEach(rowIndex => {
-    const rowData = rows[rowIndex].split(",");
-    rowData[statusIndex] = "Delivered";
-    rows[rowIndex] = rowData.join(",");
+
+function markAllAsDelivered(dbIds, customerName) {
+  // Update the status in the JSON data
+  dbIds.forEach(dbId => {
+    const orderIndex = jsonData.findIndex(order => order.DbID === dbId);
+    if (orderIndex !== -1) {
+      jsonData[orderIndex].ShippingStatus = "Delivered";
+    }
   });
-  
-  // Update the global CSV data
-  window.csvData = rows.join("\n");
   
   // Find the button that triggered this and disable it
   const button = document.querySelector(`.mark-all-delivered-btn[data-customer-name="${customerName}"]`);
@@ -778,8 +808,8 @@ function markAllAsDelivered(rowIndices, customerName) {
     });
   }
   
-  // Recalculate stats and update UI
-  processCSV(window.csvData);
+  // Re-process data to update the UI
+  processOrderData(jsonData);
   
   alert(`All orders for ${customerName} have been marked as Delivered!`);
 }
@@ -802,9 +832,4 @@ function toggleSection(headerEl) {
   const section = headerEl.parentElement;
   const content = section.querySelector(".section-content");
   content.style.display = content.style.display === "none" ? "block" : "none";
-}
-
-function scrollToSection(id) {
-  const el = document.getElementById(id);
-  el.scrollIntoView({ behavior: "smooth" });
 }
