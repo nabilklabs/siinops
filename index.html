@@ -33,6 +33,19 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
+      .glass-card {
+        width: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin: 0.3rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
       .section.stats {
         display: flex;
         flex-direction: row;
@@ -96,19 +109,6 @@
         margin-left: 0.5rem;
         padding-bottom: 0.3rem;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-      }
-
-      .section h3::after {
-        content: '↓'; /* Unicode character for down arrow */
-        margin-left: 0.5rem;
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
-      }
-
-      .section.collapsed h3::after {
-        transform: rotate(-90deg); /* Rotate the arrow when collapsed */
       }
 
       .scroll-buttons {
@@ -156,6 +156,122 @@
         color: white;
       }
 
+      /* Order details styling */
+      .order-details {
+        width: 100%;
+        margin-top: 1rem;
+        background: rgba(30, 30, 30, 0.7);
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .customer-section,
+      .seller-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .customer-header,
+      .seller-header {
+        background-color: #2c3e50;
+        color: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-left: 4px solid #3498db;
+      }
+
+      .seller-header {
+        border-left: 4px solid #e74c3c; /* Different accent color for sellers */
+      }
+
+      .orders-list {
+        list-style-type: none;
+      }
+
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      }
+
+      .item-name {
+        flex: 1;
+      }
+
+      .item-price {
+        margin: 0 1rem;
+        color: #ffc107;
+      }
+
+      .mark-all-picked-btn,
+      .mark-all-delivered-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.2s ease;
+        display: block;
+        margin: 1rem auto;
+        width: 80%;
+        max-width: 300px;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .mark-all-delivered-btn {
+        background: #17a2b8; /* Different color for delivered button */
+      }
+
+      .mark-all-picked-btn:hover,
+      .mark-all-delivered-btn:hover {
+        filter: brightness(1.1);
+      }
+
+      .mark-all-picked-btn:disabled,
+      .mark-all-delivered-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .picked-up,
+      .delivered {
+        opacity: 0.5;
+      }
+
+      .unpaid-total {
+        background-color: #f44336;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .empty-message {
+        text-align: center;
+        padding: 1rem;
+        color: #aaa;
+        font-style: italic;
+      }
+
+      .country-flag {
+        font-size: 1.2rem;
+      }
+
+      .date {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -181,6 +297,11 @@
         <h2>✅</h2>
         <h1 id="deliveredCount">0</h1>
       </div>
+    </div>
+
+    <!-- Scroll buttons will be populated dynamically -->
+    <div class="scroll-buttons">
+      <!-- Buttons will be added based on available sections -->
     </div>
 
     <!-- Local PickUp Section -->
@@ -218,15 +339,19 @@
     <script src="script.js"></script>
 
     <script>
-      document.querySelectorAll('.section h3').forEach(title => {
-        title.addEventListener('click', () => {
-          const section = title.closest('.section');
-          section.classList.toggle('collapsed'); // Toggle the collapsed state
-
-          const content = section.querySelector('.section-content');
-          content.style.display = content.style.display === 'none' ? 'block' : 'none'; // Collapse or expand content
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Data received:', data);
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
         });
-      });
     </script>
   </body>
 </html>
