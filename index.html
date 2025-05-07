@@ -109,6 +109,7 @@
         margin-left: 0.5rem;
         padding-bottom: 0.3rem;
         cursor: pointer;
+        align-items: center;
       }
 
       .scroll-buttons {
@@ -272,6 +273,23 @@
       .date {
         text-align: center;
       }
+
+      /* Style for the SVG arrow */
+      .arrow {
+        display: inline-block;
+        margin-left: 10px;
+        transition: transform 0.3s ease;
+        transform-origin: center;
+        width: 16px;  /* Set a fixed width for the arrow */
+        height: 16px; /* Set a fixed height for the arrow */
+      }
+
+      /* Rotate the arrow when the section is open */
+      .arrow.rotate {
+        transform: rotate(180deg);
+      }
+
+
     </style>
   </head>
   <body>
@@ -306,15 +324,38 @@
 
     <!-- Local PickUp Section -->
     <div class="section" id="pickup-section">
-      <h3>Local PickUp</h3>
+      <h3>
+        Local PickUp
+        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+
+          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+          
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+          
+          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
+          
+          </svg>
+      </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
       </div>
     </div>
+    
+    
 
     <!-- Local Delivery Section -->
     <div class="section" id="local-section">
-      <h3>Local Delivery</h3>
+      <h3>Local Delivery
+        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+
+          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+          
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+          
+          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
+          
+          </svg>
+      </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
       </div>
@@ -322,7 +363,17 @@
 
     <!-- Deliver to Siin Section -->
     <div class="section" id="deliver-section">
-      <h3>Deliver to Siin</h3>
+      <h3>Deliver to Siin
+        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+
+          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+          
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+          
+          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
+          
+          </svg>
+      </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
       </div>

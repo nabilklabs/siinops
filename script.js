@@ -306,11 +306,45 @@ function processOrderData(data) {
 }
 
 function renderLocalPickupSection(sellersArray) {
-  // Sort sellers: those who are also customers come last
+  // NEW SORTING LOGIC FOR LOCAL PICKUP SECTION
+  
+  // Static starting point (driver's current location)
+  const driverLat = 26.214405643565406;
+  const driverLong = 50.59370581495277;
+  
+  // Calculate distance from current location for each seller
+  sellersArray.forEach(seller => {
+    seller.distance = calculateDistance(
+      driverLat, 
+      driverLong, 
+      parseFloat(seller.latitude), 
+      parseFloat(seller.longitude)
+    );
+    
+    // Flag sellers where user needs to visit them as a customer first (for delivery)
+    seller.hasOwnItems = false;
+    if (seller.isAlsoCustomer) {
+      // Check if this seller (as customer) has any orders in picked up status
+      const sellerName = seller.name;
+      for (const order of jsonData) {
+        if (order.Customer === sellerName && 
+            order.ShippingStatus?.trim().toLowerCase() === "picked up") {
+          seller.hasOwnItems = true;
+          break;
+        }
+      }
+    }
+  });
+  
+  // First sort: Visit sellers who need delivery first (are also customers with items to receive)
+  // Then sort by distance from current location
   sellersArray.sort((a, b) => {
-    if (a.isAlsoCustomer && !b.isAlsoCustomer) return 1;
-    if (!a.isAlsoCustomer && b.isAlsoCustomer) return -1;
-    return 0;
+    // Primary sort: Sellers who need delivery first
+    if (a.hasOwnItems && !b.hasOwnItems) return -1;
+    if (!a.hasOwnItems && b.hasOwnItems) return 1;
+    
+    // Secondary sort: By distance (closest first)
+    return a.distance - b.distance;
   });
   
   // Clear and populate the pickup section
@@ -430,6 +464,24 @@ function renderLocalPickupSection(sellersArray) {
     
     pickupSection.appendChild(card);
   });
+}
+
+// Calculate distance between two points using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // Distance in km
+  return distance;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180);
 }
 
 function renderLocalDeliverySection(customersArray) {
@@ -753,7 +805,7 @@ function scrollToSection(id) {
   const el = document.getElementById(id);
   if (el) {
     el.scrollIntoView({ behavior: "smooth" });
-  }
+}
 }
 
 function markAllAsPickedUp(dbIds, sellerName) {
@@ -829,7 +881,17 @@ function openGoogleMaps(latitude, longitude) {
 }
 
 function toggleSection(headerEl) {
-  const section = headerEl.parentElement;
-  const content = section.querySelector(".section-content");
-  content.style.display = content.style.display === "none" ? "block" : "none";
-}
+    const section = headerEl.parentElement;
+    const content = section.querySelector(".section-content");
+    const arrow = headerEl.querySelector(".arrow");  // Get the arrow SVG element
+  
+    // Toggle the display of section content
+    content.style.display = content.style.display === "none" ? "block" : "none";
+  
+    // Toggle the rotation of the arrow
+    if (content.style.display === "block") {
+      arrow.classList.add("rotate");
+    } else {
+      arrow.classList.remove("rotate");
+    }
+  }
