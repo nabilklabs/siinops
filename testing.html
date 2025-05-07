@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Hour Order Data</title>
+</head>
+<body>
+    <h1>24 Hour Order Data</h1>
+    <button id="refreshButton">Refresh Data</button>
+    <div id="loading">Loading data...</div>
+    <div id="error" style="display:none;"></div>
+    <pre id="jsonOutput"></pre>
+
+    <script>
+        // Main variables
+        const apiUrl = 'https://api.test.siin.shop/v3/orders/public/get-24-hour-order?key=SIINSHOP';
+        
+        // DOM elements
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+        const jsonOutputElement = document.getElementById('jsonOutput');
+        const refreshButton = document.getElementById('refreshButton');
+        
+        // Event listeners
+        refreshButton.addEventListener('click', fetchData);
+        
+        // Initialize
+        fetchData();
+        
+        // Function to fetch data from API
+        function fetchData() {
+            // Show loading state
+            loadingElement.style.display = 'block';
+            errorElement.style.display = 'none';
+            jsonOutputElement.textContent = '';
+            
+            // Fetch data from API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Store data and update display
+                    jsonOutputElement.textContent = JSON.stringify(data, null, 2);
+                    loadingElement.style.display = 'none';
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error fetching data:', error);
+                    errorElement.textContent = `Error: ${error.message}`;
+                    errorElement.style.display = 'block';
+                    loadingElement.style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>

@@ -91,7 +91,7 @@
 
       .navigate-btn,
       .whatsapp-btn {
-        background: #5843B2;
+        background: #5843b2;
         color: white;
         padding: 0.4rem 0.7rem;
         border: none;
@@ -280,7 +280,7 @@
         margin-left: 10px;
         transition: transform 0.3s ease;
         transform-origin: center;
-        width: 16px;  /* Set a fixed width for the arrow */
+        width: 16px; /* Set a fixed width for the arrow */
         height: 16px; /* Set a fixed height for the arrow */
       }
 
@@ -288,17 +288,15 @@
       .arrow.rotate {
         transform: rotate(180deg);
       }
-
-
     </style>
   </head>
   <body>
     <div class="logo-container">
-      <img src="logo.png" alt="Logo" class="logo" />
+      <img src="./images/logo.png" alt="Logo" class="logo" />
     </div>
 
     <div class="section">
-      <h3 class="date"> 📅 </h3>
+      <h3 class="date">📅</h3>
       <h3 class="date" id="dates">May 1 - May 2</h3>
     </div>
 
@@ -326,35 +324,68 @@
     <div class="section" id="pickup-section">
       <h3>
         Local PickUp
-        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <svg
+          class="arrow"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0" />
 
-          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-          
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-          
-          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
-          
-          </svg>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M7 10L12 15L17 10"
+              stroke="#ffffff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+        </svg>
       </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
       </div>
     </div>
-    
-    
 
     <!-- Local Delivery Section -->
     <div class="section" id="local-section">
-      <h3>Local Delivery
-        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <h3>
+        Local Delivery
+        <svg
+          class="arrow"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0" />
 
-          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-          
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-          
-          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
-          
-          </svg>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M7 10L12 15L17 10"
+              stroke="#ffffff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+        </svg>
       </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
@@ -363,46 +394,58 @@
 
     <!-- Deliver to Siin Section -->
     <div class="section" id="deliver-section">
-      <h3>Deliver to Siin
-        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <h3>
+        Deliver to Siin
+        <svg
+          class="arrow"
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0" />
 
-          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-          
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-          
-          <g id="SVGRepo_iconCarrier"> <path d="M7 10L12 15L17 10" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </g>
-          
-          </svg>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M7 10L12 15L17 10"
+              stroke="#ffffff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+        </svg>
       </h3>
       <div class="section-content">
         <!-- Will be populated dynamically -->
       </div>
     </div>
 
-    <div class="upload-container">
-      <label class="upload-label" for="csvUpload">Upload CSV File:</label><br />
-      <input type="file" id="csvUpload" accept=".csv" />
-    </div>
-
     <!-- Include the authentication script first -->
-    <script src="auth.js"></script>
+    <script src="./js/auth.js"></script>
     <!-- Then include the main script -->
-    <script src="script.js"></script>
+    <!-- <script src="./js/imports.js"></script> -->
 
-    <script>
-      fetch('https://jsonplaceholder.typicode.com/users')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Data received:', data);
-        })
-        .catch(error => {
-          console.error('There was a problem with the fetch operation:', error);
-        });
-    </script>
+    <!-- Utilities first -->
+    <script src="./js/dateUtils.js"></script>
+    <script src="./js/geoUtils.js"></script>
+    <script src="./js/navigationUtils.js"></script>
+    <script src="./js/uiUtils.js"></script>
+
+    <!-- Services next -->
+    <script src="./js/dataService.js"></script>
+    <script src="./js/orderProcessingService.js"></script>
+    <script src="./js/uiRendererService.js"></script>
+    <script src="./js/orderService.js"></script>
+
+    <!-- Main script last -->
+    <script src="./js/main.js"></script>
   </body>
 </html>

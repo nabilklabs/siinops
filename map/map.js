@@ -103,22 +103,30 @@ function refreshMap() {
     }
 }
 
-// Function to load order data from orders.json
+// Function to load order data from API
 async function loadOrderData() {
     try {
-        const response = await fetch('orders.json');
+        // Use the API endpoint instead of local file
+        const response = await fetch('https://api.test.siin.shop/v3/orders/public/get-24-hour-order?key=SIINSHOP');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        jsonData = await response.json();
-        console.log("Order data loaded successfully:", jsonData.length, "orders");
+        const apiResponse = await response.json();
         
-        // Process the data for the map
-        if (currentView === 'pickup') {
-            processPickupData(jsonData);
+        // Check if the API response has the expected structure
+        if (apiResponse.status && Array.isArray(apiResponse.data)) {
+            jsonData = apiResponse.data;
+            console.log("Order data loaded successfully:", jsonData.length, "orders");
+            
+            // Process the data for the map
+            if (currentView === 'pickup') {
+                processPickupData(jsonData);
+            } else {
+                processDeliveryData(jsonData);
+            }
         } else {
-            processDeliveryData(jsonData);
+            throw new Error("Invalid API response format");
         }
     } catch (error) {
         console.error("Failed to load order data:", error);
@@ -128,6 +136,19 @@ async function loadOrderData() {
 
 // Process data for pickup view
 function processPickupData(data) {
+    // Normalize data from API
+    data.forEach(order => {
+        // Convert string status to appropriate format
+        if (order.ShippingStatus) {
+            order.ShippingStatus = order.ShippingStatus.toLowerCase();
+        }
+        
+        // Convert "paid" string to boolean
+        if (order.Paid === "paid") {
+            order.Paid = true;
+        }
+    });
+
     // Track customer names for determining dual roles
     const customerNames = new Set();
     
@@ -246,6 +267,19 @@ function processPickupData(data) {
 
 // Process data for delivery view
 function processDeliveryData(data) {
+    // Normalize data from API
+    data.forEach(order => {
+        // Convert string status to appropriate format
+        if (order.ShippingStatus) {
+            order.ShippingStatus = order.ShippingStatus.toLowerCase();
+        }
+        
+        // Convert "paid" string to boolean
+        if (order.Paid === "paid") {
+            order.Paid = true;
+        }
+    });
+
     // Collect delivery locations (customers with picked up status)
     const deliveryLocations = [];
     

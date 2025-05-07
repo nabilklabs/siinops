@@ -94,7 +94,7 @@ function createAuthOverlay() {
   
   // Create logo image
   const logoImg = document.createElement('img');
-  logoImg.src = 'logo.png';
+  logoImg.src = './images/logo.png';
   logoImg.alt = 'Siin Logistics';
   logoImg.style.cssText = `
     width: 80px;

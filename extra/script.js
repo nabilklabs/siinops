@@ -20,26 +20,33 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-// Function to load order data from orders.json
+// Function to load order data from API instead of orders.json
 async function loadOrderData() {
   try {
-    const response = await fetch('orders.json');
+    const response = await fetch('https://api.test.siin.shop/v3/orders/public/get-24-hour-order?key=SIINSHOP');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    jsonData = await response.json();
-    console.log("Order data loaded successfully:", jsonData.length, "orders");
+    const apiResponse = await response.json();
     
-    // Calculate and display date range
-    const dateRange = getDateRange(jsonData);
-    if (dateRange.earliest && dateRange.latest) {
-      document.getElementById('dates').textContent = 
-        `${formatMonthDay(dateRange.earliest)} - ${formatMonthDay(dateRange.latest)}`;
+    // Check if the response has the expected structure with 'data' array
+    if (apiResponse.status && Array.isArray(apiResponse.data)) {
+      jsonData = apiResponse.data;
+      console.log("Order data loaded successfully:", jsonData.length, "orders");
+      
+      // Calculate and display date range
+      const dateRange = getDateRange(jsonData);
+      if (dateRange.earliest && dateRange.latest) {
+        document.getElementById('dates').textContent = 
+          `${formatMonthDay(dateRange.earliest)} - ${formatMonthDay(dateRange.latest)}`;
+      }
+      
+      // Process the JSON data
+      processOrderData(jsonData);
+    } else {
+      throw new Error("Invalid API response format");
     }
-    
-    // Process the JSON data
-    processOrderData(jsonData);
   } catch (error) {
     console.error("Failed to load order data:", error);
     alert("Error loading order data. Please try again later.");
@@ -90,10 +97,29 @@ function getDateRange(data) {
 
 // Process the order data
 function processOrderData(data) {
+  // Adapt for API response data structure
+  // Map 'paid' string to boolean for compatibility with original code
+  data.forEach(order => {
+    if (order.Paid === 'paid') {
+      order.Paid = true;
+    } else if (order.Paid === 'unpaid') {
+      order.Paid = false;
+    }
+    
+    // Convert shipping status to match expected format
+    if (order.ShippingStatus === 'pending') {
+      order.ShippingStatus = 'pending';
+    } else if (order.ShippingStatus === 'delivered') {
+      order.ShippingStatus = 'delivered';
+    } else if (order.ShippingStatus === 'picked up') {
+      order.ShippingStatus = 'picked up';
+    }
+  });
+
   // Store column indices globally for later use
   window.csvColumnIndices = {
     status: 'ShippingStatus',
-    orderId: 'OrderID'
+    orderId: 'DbID'  // Using DbID from API instead of OrderID
   };
 
   // Process data for status counts - track unique sellers
@@ -135,7 +161,7 @@ function processOrderData(data) {
       const sellerNumber = order.SellerNumber?.toString().trim();
       const sellerLat = order.SellerLatitude?.toString().trim();
       const sellerLong = order.SellerLongitude?.toString().trim();
-      const orderId = order.OrderID?.toString().trim();
+      const orderId = order.DbID?.toString().trim();  // Using DbID from API
       const item = order.Item?.trim();
       const total = order.Total?.toString().trim();
       const currency = order.CurrencyCode?.trim();
@@ -184,7 +210,7 @@ function processOrderData(data) {
       const customerNumber = order.CustomerNumber?.toString().trim();
       const customerLat = order.CustomerLatitude?.toString().trim();
       const customerLong = order.CustomerLongitude?.toString().trim();
-      const orderId = order.OrderID?.toString().trim();
+      const orderId = order.DbID?.toString().trim();  // Using DbID from API
       const item = order.Item?.trim();
       const total = parseFloat(order.Total || 0);
       const currency = order.CurrencyCode?.trim();
@@ -777,6 +803,13 @@ function getCountryFlag(countryCode) {
   return flagMap[upperCode] || "🌐"; // Default globe emoji if code not found
 }
 
+
+
+
+
+
+
+
 function updateScrollButtons() {
   const scrollButtons = document.querySelector(".scroll-buttons");
   scrollButtons.innerHTML = "";
@@ -800,12 +833,11 @@ function updateScrollButtons() {
   });
 }
 
-// FIXED: Added the missing scrollToSection function
 function scrollToSection(id) {
   const el = document.getElementById(id);
   if (el) {
     el.scrollIntoView({ behavior: "smooth" });
-}
+  }
 }
 
 function markAllAsPickedUp(dbIds, sellerName) {
@@ -881,17 +913,17 @@ function openGoogleMaps(latitude, longitude) {
 }
 
 function toggleSection(headerEl) {
-    const section = headerEl.parentElement;
-    const content = section.querySelector(".section-content");
-    const arrow = headerEl.querySelector(".arrow");  // Get the arrow SVG element
-  
-    // Toggle the display of section content
-    content.style.display = content.style.display === "none" ? "block" : "none";
-  
-    // Toggle the rotation of the arrow
-    if (content.style.display === "block") {
-      arrow.classList.add("rotate");
-    } else {
-      arrow.classList.remove("rotate");
-    }
+  const section = headerEl.parentElement;
+  const content = section.querySelector(".section-content");
+  const arrow = headerEl.querySelector(".arrow");  // Get the arrow SVG element
+
+  // Toggle the display of section content
+  content.style.display = content.style.display === "none" ? "block" : "none";
+
+  // Toggle the rotation of the arrow
+  if (content.style.display === "block") {
+    arrow.classList.add("rotate");
+  } else {
+    arrow.classList.remove("rotate");
   }
+}
