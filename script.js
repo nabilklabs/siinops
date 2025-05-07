@@ -6,12 +6,30 @@ let csvData = "";  // Will store the JSON converted to CSV format for compatibil
 document.addEventListener("DOMContentLoaded", function() {
   loadOrderData();
   
-  // Set up the section toggle functionality
-  document.querySelectorAll(".section h3").forEach(header => {
-    header.addEventListener("click", function() {
-      toggleSection(this);
-    });
+// Set up the section toggle functionality
+document.querySelectorAll(".section h3").forEach(header => {
+  header.addEventListener("click", function() {
+    toggleSection(this);
   });
+});
+
+// Toggle the section and rotate the arrow
+function toggleSection(header) {
+  const section = header.closest('.section'); // Get the closest section
+  const content = section.querySelector('.section-content'); // Get the section content
+  const arrow = header.querySelector('::after'); // This targets the arrow
+
+  // Toggle the 'collapsed' class to rotate the arrow and show/hide content
+  section.classList.toggle('collapsed');
+
+  // Toggle the display of section content
+  if (content.style.display === 'none') {
+    content.style.display = 'block'; // Show the content
+  } else {
+    content.style.display = 'none'; // Hide the content
+  }
+}
+
   
   // Hide the upload container since we're loading directly from JSON
   const uploadContainer = document.querySelector(".upload-container");
