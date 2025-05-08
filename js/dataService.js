@@ -14,7 +14,6 @@ const dataService = {
         // Check if the response has the expected structure with 'data' array
         if (apiResponse.status && Array.isArray(apiResponse.data)) {
           jsonData = apiResponse.data;
-          console.log("Order data loaded successfully:", jsonData.length, "orders");
           
           // Calculate and display date range
           const dateRange = this.getDateRange(jsonData);

@@ -3,7 +3,6 @@
 const orderService = {
   // Mark all orders as picked up for a seller
   async markAllAsPickedUp(dbIds, sellerName) {
-    console.log("Orders to update:", dbIds);
     
     try {
       // Make API call to update status to INPROGRESS for all orders at once
@@ -23,7 +22,6 @@ const orderService = {
       }
       
       const result = await response.json();
-      console.log("API response:", result);
       
       // Update local data after successful API call
       dbIds.forEach(dbId => {
@@ -59,7 +57,6 @@ const orderService = {
 
   // Mark all orders as delivered for a customer
   async markAllAsDelivered(dbIds, customerName) {
-    console.log("Orders to update:", dbIds);
     
     try {
       // Make API call to update status to DELIVERED for all orders at once
@@ -79,7 +76,6 @@ const orderService = {
       }
       
       const result = await response.json();
-      console.log("API response:", result);
       
       // Update local data after successful API call
       dbIds.forEach(dbId => {

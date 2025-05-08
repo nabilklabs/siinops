@@ -90,12 +90,23 @@ const uiRendererService = {
         // Navigate button
         const navigateBtn = document.createElement("button");
         navigateBtn.className = "navigate-btn";
-        navigateBtn.textContent = "📍";
+
+        // Check if the seller's longitude is the specific value
+        if (seller.longitude === 26.21429383309266) {
+          navigateBtn.textContent = "Siin";
+          navigateBtn.style.backgroundColor = "red";  // Change button color to red
+        } else {
+          navigateBtn.textContent = "📍";
+        }
+
         navigateBtn.onclick = function(event) {
           event.stopPropagation();
           openGoogleMaps(seller.latitude, seller.longitude);
         };
+
         card.appendChild(navigateBtn);
+
+
         
         // Create dropdown content for orders
         const dropdownContent = document.createElement("div");
@@ -121,7 +132,7 @@ const uiRendererService = {
             const orderItem = document.createElement("li");
             orderItem.className = "order-item";
             orderItem.innerHTML = `
-              <span class="item-name">${order.item}</span>
+              <span class="item-name">${order.item.startsWith("1x ") ? order.item.substring(3) : order.item}</span>
               <span class="item-price">${order.total} ${order.currency}</span>
             `;
             ordersList.appendChild(orderItem);
@@ -252,7 +263,7 @@ const uiRendererService = {
             const priceColor = order.paid ? "#4CAF50" : "#f44336"; // Green if paid, red if not
             
             orderItem.innerHTML = `
-              <span class="item-name">${order.item}</span>
+              <span class="item-name">${order.item.startsWith("1x ") ? order.item.substring(3) : order.item}</span>
               <span class="item-price" style="color: ${priceColor};">${order.total} ${order.currency}</span>
             `;
             ordersList.appendChild(orderItem);
@@ -365,7 +376,7 @@ const uiRendererService = {
             const priceColor = order.paid ? "#4CAF50" : "#f44336"; // Green if paid, red if not
             
             orderItem.innerHTML = `
-              <span class="item-name">${order.item}</span>
+              <span class="item-name">${order.item.startsWith("1x ") ? order.item.substring(3) : order.item}</span>
               <span class="item-price" style="color: ${priceColor};">${order.total} ${order.currency}</span>
             `;
             ordersList.appendChild(orderItem);

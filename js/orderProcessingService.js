@@ -6,9 +6,9 @@ const orderProcessingService = {
       // Adapt for API response data structure
       // Map 'paid' string to boolean for compatibility with original code
       data.forEach(order => {
-        if (order.Paid === 'paid') {
+        if (order.method !== 'cash') {
           order.Paid = true;
-        } else if (order.Paid === 'unpaid') {
+        } else if (order.method === 'cash') {
           order.Paid = false;
         }
         
@@ -25,7 +25,7 @@ const orderProcessingService = {
       // Store column indices globally for later use
       window.csvColumnIndices = {
         status: 'ShippingStatus',
-        orderId: 'DbID'  // Using DbID from API instead of OrderID
+        orderId: 'DbID',  // Using DbID from API instead of OrderID
       };
   
       // Process data for status counts - track unique sellers
@@ -65,8 +65,8 @@ const orderProcessingService = {
         // Process for Local PickUp section (BH sellers with pending status)
         if (sellerCountry === "BH" && status === "pending") {
           const sellerNumber = order.SellerNumber?.toString().trim();
-          const sellerLat = order.SellerLatitude?.toString().trim();
-          const sellerLong = order.SellerLongitude?.toString().trim();
+          const sellerLat = order.SellerLatitude?.toString().trim() ?? 50.59367465822025;
+          const sellerLong = order.SellerLongitude?.toString().trim() ?? 26.21429383309266;
           const orderId = order.DbID?.toString().trim();  // Using DbID from API
           const item = order.Item?.trim();
           const total = order.Total?.toString().trim();
@@ -224,9 +224,9 @@ const orderProcessingService = {
       }
   
       // Update the status counts with the number of unique sellers
-      document.getElementById("pendingCount").textContent = pendingSellers.size;
-      document.getElementById("pickedUpCount").textContent = pickedUpSellers.size;
-      document.getElementById("deliveredCount").textContent = deliveredSellers.size;
+      document.getElementById("pendingCount").textContent = "⏳  " + pendingSellers.size;
+      document.getElementById("pickedUpCount").textContent = "🚚  " + pickedUpSellers.size;
+      document.getElementById("deliveredCount").textContent = "✅  " + deliveredSellers.size;
       
       // Render all sections
       uiRendererService.renderLocalPickupSection(Object.values(sellers));

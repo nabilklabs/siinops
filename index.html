@@ -33,26 +33,35 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      .glass-card {
-        width: 100px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 0.5rem;
-        margin: 0.3rem;
-        color: white;
-        text-align: center;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
+      /* Stats Section */
       .section.stats {
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: center;
-        margin-top: 1rem;
+        justify-content: space-around; /* Add space between items */
+        text-align: center;
+        margin-left: 50px;
+        margin-right: 50px;
       }
+
+      /* Glass Card */
+      .glass-card {
+        width: 80px; /* Reduce width */
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 8px; /* Smaller border radius */
+        color: white;
+        text-align: center;
+        padding: 10px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Adjust shadow */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .glass-card h3 {
+        font-size: 1rem; /* Smaller number size */
+      }
+
 
       .section {
         margin-bottom: 2rem;
@@ -302,16 +311,13 @@
 
     <div class="section stats">
       <div class="glass-card">
-        <h2>⏳</h2>
-        <h1 id="pendingCount">0</h1>
+        <h3 id="pendingCount">0</h3>
       </div>
       <div class="glass-card">
-        <h2>🚚</h2>
-        <h1 id="pickedUpCount">0</h1>
+        <h3 id="pickedUpCount">0</h3>
       </div>
       <div class="glass-card">
-        <h2>✅</h2>
-        <h1 id="deliveredCount">0</h1>
+        <h3 id="deliveredCount">0</h3>
       </div>
     </div>
 
@@ -429,7 +435,7 @@
     </div>
 
     <!-- Include the authentication script first -->
-    <script src="./js/auth.js"></script>
+    <!-- <script src="./js/auth.js"></script> -->
     <!-- Then include the main script -->
     <!-- <script src="./js/imports.js"></script> -->
 
